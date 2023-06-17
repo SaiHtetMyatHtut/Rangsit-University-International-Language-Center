@@ -1,0 +1,71 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Student {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String  @unique
+  image String?
+  hashed_password String
+  role Role?
+  apply Apply[]
+}
+
+model Mentor {
+  id    Int     @id @default(autoincrement())
+  name  String
+  email String  @unique
+  image String?
+  hashed_password String
+  language String
+  ig_url String
+  fb_url String
+  line_id String 
+  role Role?
+  apply Apply[]
+}
+
+model Permission {
+  id    Int     @id @default(autoincrement())
+  name  String
+  role_id Int @unique
+  role Role @relation(fields: [role_id], references: [id])
+}
+
+model Role {
+  id    Int     @id @default(autoincrement())
+  name  String
+  permission Permission[]
+  student_id Int @unique
+  student Student @relation(fields: [student_id], references: [id])
+  mentor_id Int @unique
+  mentor Mentor @relation(fields: [mentor_id], references: [id])
+}
+
+model Section {
+  id    Int     @id @default(autoincrement())
+  name  String
+  description String
+  image String
+  apply_id Int @unique
+  apply Apply @relation(fields: [apply_id], references: [id])
+}
+
+model Apply {
+  student_id Int
+  student Student @relation(fields: [student_id], references: [id])
+  mentor_id Int
+  mentor Mentor @relation(fields: [mentor_id], references: [id])
+  @@id([student_id, mentor_id])
+  id Int @default(autoincrement()) @unique
+  section_id Section[]
+}
